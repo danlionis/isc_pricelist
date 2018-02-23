@@ -3,3 +3,4 @@ build
 .idea
 tables
 gui.spec
+out

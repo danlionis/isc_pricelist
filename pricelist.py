@@ -3,6 +3,7 @@ import itertools
 import sys, getopt
 from pprint import pprint
 from operator import itemgetter
+import copy
 
 from csv_parser import parse_price, parse_marketshare
 
@@ -54,7 +55,7 @@ def start(filename_pricelist, filename_marketshares, path_savefile, marge):
 
 
 def write_grouped(grouped, file_name):
-    with open(file_name + "/country_prices.csv", 'w') as calculated:
+    with open(file_name + "/cost_country.csv", 'w') as calculated:
         fieldnames = ['region', 'country', 'operator_count', 'cost','marketshare', 'marge', 'salesprice']
         writer = csv.DictWriter(calculated, fieldnames=fieldnames, extrasaction='ignore', lineterminator='\n')
 
@@ -65,7 +66,7 @@ def write_grouped(grouped, file_name):
 
 
 def write_final(grouped, file_name):
-    with open(file_name + '/preisliste.csv', 'w') as list:
+    with open(file_name + '/salesprice.csv', 'w') as list:
         fieldnames = ['region', 'country', 'salesprice']
         writer = csv.DictWriter(list, fieldnames=fieldnames, extrasaction='ignore', lineterminator='\n')
 
@@ -81,23 +82,27 @@ def group_weighted(weighted, marge):
     grouped = []
 
     for key, operators in itertools.groupby(sorted_prices, key=itemgetter('country')):
-        group = {'country': key, 'operators': [], 'price': 0, 'marketshare': 0, 'operator_count': 0}
+        group = {'country': key, 'price': 0, 'marketshare': 0}
 
-        for op in operators:
-            group['operators'].append(op)
+        # copy the object without references
+        ops = copy.deepcopy(operators)
+        operator_list = list(ops)
+
+        marketshare_total = sum([x['marketshare'] for x in operators])
+        marketshare_diff = 1 - marketshare_total
+
+        group['marketshare'] = marketshare_total
+
+
+        for op in operator_list:
+          op['marketshare'] = op['marketshare'] / marketshare_total
+          op['weighted_price']  = op['price'] * op['marketshare']
+
+        for op in operator_list:
             group['price'] += op['weighted_price']
-            group['marketshare'] += op['marketshare']
             group['region'] = op['region']
-            group['operator_count'] += 1
 
-        # if there is not 100% marketshare it takes the average of all operator prices
-        # and adds that with the remaining marketshare to the total price
-        if group['marketshare'] < 1:
-          # print(group['price'])
-          average = group['price'] / group['operator_count']
-          marketshare_diff = 1 - group['marketshare']
-          group['price'] += average * marketshare_diff
-
+        group['operator_count'] = len(list(operator_list))
         group['cost'] = round(group['price'], 5)
         group['marge'] = "{0}%".format(marge)
         group['salesprice'] = round(group['price'] * (1 + (marge / 100)), 5)
@@ -127,7 +132,7 @@ def calc_weighted(prices, marketshares):
 
 
 def write_weighted(weighted, file_name):
-    with open(file_name + "/operator_prices.csv", 'w') as calculated_list:
+    with open(file_name + "/cost_operator.csv", 'w') as calculated_list:
         fieldnames = ['region', 'country', 'operator', 'mcc', 'mnc', 'price', 'marketshare', 'weighted_price']
         writer = csv.DictWriter(calculated_list, fieldnames=fieldnames, extrasaction='ignore', lineterminator='\n')
 
