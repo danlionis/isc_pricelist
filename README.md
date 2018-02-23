@@ -6,16 +6,16 @@ Tables are in `.csv` format
 
 Headers are **not** allowed inside any table.
 
-The names of *region, country* and *operator* in the output tables are taken from the `marketshare` table. That's why they are not mandatory in the pricelist table.
+The names of *region, country* and *operator* in the output tables are taken from the `marketshare` table. That's why they are not required in the pricelist table.
 
 ## Pricelist
 
-mnc values can be seperated by a `comma` (,) if there are more than one mnc number for an operator
+mnc values can be seperated by a `comma` ( , ) if there is more than one mnc number for an operator
 
 ### Schema
 
-|Column |Values   |type     |mandatory|
-|-    |-        |-        |:-:      |
+|Column |Values   |type     |required|
+|-      |-        |-        |:-:      |
 |A      |region   |text     |   
 |B      |country  |text     |
 |C      |operator |text     |
@@ -38,7 +38,7 @@ mnc values can **not** be seperated by a comma.
 
 ### Schema
 
-|Column |Values     |type     |mandatory|
+|Column |Values     |type     |required|
 |-      |-          |-        |:-:      |
 |A      |region     |text     |X        |
 |B      |country    |text     |X        |
