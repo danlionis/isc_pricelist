@@ -7,11 +7,6 @@ import copy
 
 from csv_parser import parse_price, parse_marketshare
 
-# prices = []
-# marketshares = []
-# weighted = []
-# final = []
-
 def main(argv):
     try:
         opts, args = getopt.getopt(argv, 'p:m:', ['pricelist=', 'marketshare='])
@@ -52,6 +47,7 @@ def start(filename_pricelist, filename_marketshares, path_savefile, marge):
     # write the final prices to a table
     write_grouped(grouped, path_savefile)
     write_final(grouped, path_savefile)
+    print("============== COMPLETE ==============")
 
 
 def write_grouped(grouped, file_name):
